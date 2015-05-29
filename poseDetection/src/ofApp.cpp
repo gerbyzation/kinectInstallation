@@ -10,8 +10,7 @@ void ofApp::setup(){
 	camera.setDistance(10);
 
 	ofSetWindowShape(1920, 1080);
-
-	limbs[0] = "SpineBase"; limbs[1] = "SpineMid"; limbs[2] = "Neck"; limbs[3] = "Head"; limbs[4] = "ShoulderLeft"; limbs[5] = "ElbowLeft"; limbs[6] = "WristLeft"; limbs[7] = "HandLeft"; limbs[8] = "ShoulderRight"; limbs[9] = "ElbowRight"; limbs[10] = "WristRight"; limbs[11] = "HandRight"; limbs[12] = "HipLeft"; limbs[13] = "KneeLeft"; limbs[14] = "AnkleLeft"; limbs[15] = "FootLeft"; limbs[16] = "HipRight"; limbs[17] = "KneeRight"; limbs[18] = "AnkleRight"; limbs[19] = "FootRight"; limbs[20] = "SpineShoulder"; limbs[21] = "HandTipLieft"; limbs[22] = "ThumbLeft"; limbs[23] = "HandTipRight"; limbs[24] = "ThumbRight";
+	string joints[] = { "SpineBase", "SpineMid", "Neck", "Head", "ShoulderLeft", "ElbowLeft", "WristLeft", "HandLeft", "ShoulderRight", "ElbowRight", "WristRight", "HandRight", "HipLeft", "KneeLeft", "AnkleLeft", "FootLeft", "HipRight", "KneeRight", "AnkleRight", "FootRight", "SpineShoulder", "HandTipLeft", "ThumbLeft", "HandTipRight", "ThumbRight" };
 }
 
 //--------------------------------------------------------------
@@ -75,7 +74,7 @@ void ofApp::drawJoints3D() {
 					ofBox(pos.x, pos.y, pos.z, .05, .05, .05);
 
 					ofSetColor(255);
-					ofDrawBitmapString(limbs[it->first], pos.x, pos.y, pos.z);
+					ofDrawBitmapString(Joints[it->first], pos.x, pos.y, pos.z);
 				}
 
 			}

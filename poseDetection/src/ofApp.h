@@ -6,6 +6,8 @@
 
 class ofApp : public ofBaseApp{
 
+	
+
 	public:
 		void setup();
 		void update();
@@ -27,9 +29,9 @@ class ofApp : public ofBaseApp{
 		ofMesh			mesh;
 
 		void			drawJoints3D();
-		std::map<int, string> limbs;
 		
-		const string joints[25];
+		static const string joints[];	
+
 		enum Joints
 		{
 			SpineBase,

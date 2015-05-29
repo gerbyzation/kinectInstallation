@@ -1,5 +1,7 @@
 #include "ofApp.h"
 
+const string ofApp::joints[] = { "SpineBase", "SpineMid", "Neck", "Head", "ShoulderLeft", "ElbowLeft", "WristLeft", "HandLeft", "ShoulderRight", "ElbowRight", "WristRight", "HandRight", "HipLeft", "KneeLeft", "AnkleLeft", "FootLeft", "HipRight", "KneeRight", "AnkleRight", "FootRight", "SpineShoulder", "HandTipLeft", "ThumbLeft", "HandTipRight", "ThumbRight" };
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 	kinect.open();
@@ -10,7 +12,6 @@ void ofApp::setup(){
 	camera.setDistance(10);
 
 	ofSetWindowShape(1920, 1080);
-	string joints[] = { "SpineBase", "SpineMid", "Neck", "Head", "ShoulderLeft", "ElbowLeft", "WristLeft", "HandLeft", "ShoulderRight", "ElbowRight", "WristRight", "HandRight", "HipLeft", "KneeLeft", "AnkleLeft", "FootLeft", "HipRight", "KneeRight", "AnkleRight", "FootRight", "SpineShoulder", "HandTipLeft", "ThumbLeft", "HandTipRight", "ThumbRight" };
 }
 
 //--------------------------------------------------------------
@@ -53,9 +54,6 @@ void ofApp::drawJoints3D() {
 	// THERE IS A MAXIMUM OF 6 BODIES TRACKED BY KINECT
 	for (int i = 0; i<6; i++){
 
-		// give every body diff joint color
-
-
 		// IF THE BODY IS BEING TRACKED...
 		if (this->kinect.getBodySource()->getBodies()[i].tracked){
 
@@ -70,15 +68,41 @@ void ofApp::drawJoints3D() {
 					// GRAB THE JOINT'S 3D POSITION
 					pos = it->second.getPosition();
 					// draw box on position
+					// give every body diff joint color
 					ofSetColor(ofColor::fromHsb(i*40, 255, 255));
 					ofBox(pos.x, pos.y, pos.z, .05, .05, .05);
 
 					ofSetColor(255);
-					ofDrawBitmapString(Joints[it->first], pos.x, pos.y, pos.z);
+					ofDrawBitmapString(joints[it->first], pos.x, pos.y, pos.z);
+
+					if (it->first == ElbowRight) {
+						std::map<JointType, ofxKFW2::Data::Joint>::iterator shoulder = it;
+						std::map<JointType, ofxKFW2::Data::Joint>::iterator wrist = it;
+
+						--shoulder;
+						++wrist;
+						
+						ofPoint posShoulder = shoulder->second.getPosition();
+						ofPoint posElbow = it->second.getPosition();
+						ofPoint posWrist = wrist->second.getPosition();
+
+						// calculate distances between points
+						float distSW = sqrtf(pow(posShoulder.x - posWrist.x, 2) + pow(posShoulder.y - posWrist.y, 2));
+						float distSE = sqrtf(pow(posShoulder.x - posElbow.x, 2) + pow(posShoulder.y - posElbow.y, 2));
+						float distEW = sqrtf(pow(posElbow.x - posWrist.x, 2) + pow(posElbow.y - posWrist.y, 2));
+
+						// sinusregel c^2 = a^2 + b^2 - 2ab * cos(C)
+						// cos(C) = (a^2 + b^2 - c^2) / 2ab
+						float angle = acosf((pow(distSE, 2) + pow(distEW, 2) - pow(distSW, 2)) / (2 * distSE * distEW));
+						// angle is in radians
+						cout << angle << endl;
+
+						// get the angle of elbow
+					}
+
 				}
 
 			}
-
 		}
 	}
 	ofSetColor(255);

@@ -76,6 +76,7 @@ void ofApp::drawJoints3D() {
 					ofDrawBitmapString(joints[it->first], pos.x, pos.y, pos.z);
 
 					if (it->first == ElbowRight) {
+						// it works, but doesn't seem a clean solution to me...
 						std::map<JointType, ofxKFW2::Data::Joint>::iterator shoulder = it;
 						std::map<JointType, ofxKFW2::Data::Joint>::iterator wrist = it;
 
@@ -91,15 +92,16 @@ void ofApp::drawJoints3D() {
 						float distSE = sqrtf(pow(posShoulder.x - posElbow.x, 2) + pow(posShoulder.y - posElbow.y, 2));
 						float distEW = sqrtf(pow(posElbow.x - posWrist.x, 2) + pow(posElbow.y - posWrist.y, 2));
 
-						// sinusregel c^2 = a^2 + b^2 - 2ab * cos(C)
+						// cosine rule c^2 = a^2 + b^2 - 2ab * cos(C)
 						// cos(C) = (a^2 + b^2 - c^2) / 2ab
 						float angle = acosf((pow(distSE, 2) + pow(distEW, 2) - pow(distSW, 2)) / (2 * distSE * distEW));
 						// angle is in radians
-						cout << angle << endl;
+						// rotation is over z-axis?
+						// cout << ofRadToDeg(angle) << endl;
 
-						// get the angle of elbow
+					} else if (it->first == ShoulderRight) {
+						
 					}
-
 				}
 
 			}

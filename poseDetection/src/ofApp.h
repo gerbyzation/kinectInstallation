@@ -6,58 +6,58 @@
 
 class ofApp : public ofBaseApp{
 
-	
 
-	public:
-		void setup();
-		void update();
-		void draw();
 
-		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
-		
-		ofxKFW2::Device kinect;
+public:
+    void setup();
+    void update();
+    void draw();
 
-		ofEasyCam		camera;
-		ofMesh			mesh;
+    void keyPressed(int key);
+    void keyReleased(int key);
+    void mouseMoved(int x, int y );
+    void mouseDragged(int x, int y, int button);
+    void mousePressed(int x, int y, int button);
+    void mouseReleased(int x, int y, int button);
+    void windowResized(int w, int h);
+    void dragEvent(ofDragInfo dragInfo);
+    void gotMessage(ofMessage msg);
 
-		void			drawJoints3D();
-		
-		static const string joints[];	
+    ofxKFW2::Device kinect;
 
-		enum Joints
-		{
-			SpineBase,
-			SpineMid,
-			Neck,
-			Head,
-			ShoulderLeft,
-			ElbowLeft,
-			WristLeft,
-			HandLeft,
-			ShoulderRight,
-			ElbowRight,
-			WristRight,
-			HandRight,
-			HipLeft,
-			KneeLeft,
-			AnkleLeft,
-			FootLeft,
-			HipRight,
-			KneeRight,
-			AnkleRight,
-			FootRight,
-			SpineShoulder, 
-			HandTipLeft,
-			ThumbLeft,
-			HandTipRight,
-			ThumbRight
-		};
+    ofEasyCam		camera;
+    ofMesh			mesh;
+
+    void			drawJoints3D();
+
+    static const string joints[];	
+
+    enum Joints
+    {
+        SpineBase,
+        SpineMid,
+        Neck,
+        Head,
+        ShoulderLeft,
+        ElbowLeft,
+        WristLeft,
+        HandLeft,
+        ShoulderRight,
+        ElbowRight,
+        WristRight,
+        HandRight,
+        HipLeft,
+        KneeLeft,
+        AnkleLeft,
+        FootLeft,
+        HipRight,
+        KneeRight,
+        AnkleRight,
+        FootRight,
+        SpineShoulder, 
+        HandTipLeft,
+        ThumbLeft,
+        HandTipRight,
+        ThumbRight
+    };
 };

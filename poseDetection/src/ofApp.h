@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxKinectForWindows2.h"
 #include <map>
+#include <array>
 
 class ofApp : public ofBaseApp{
 
@@ -39,8 +40,14 @@ public:
 
     void            drawJoints3D();
 
-    static const string joints[];   
+    struct CalcParams {
+        int j[3];
+    };
 
+    map<string, float> jointAngles;
+    map<string, CalcParams> jointCalcParams;
+
+    static const string joints[];
     enum Joints
     {
         SpineBase,

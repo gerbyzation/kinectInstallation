@@ -12,15 +12,30 @@ void ofApp::setup(){
     camera.setDistance(10);
 
     ofSetWindowShape(1920, 1080);
+
+    // std::array<int, 3> elbowR; { { 1, 2, 3} };
+    CalcParams elbowR       = { ShoulderRight, ElbowRight, WristRight };
+    CalcParams elbowL       = { ShoulderLeft, ElbowLeft, WristLeft };
+    CalcParams zShoulderR   = { HipRight, ShoulderRight, ElbowRight };
+
+    jointCalcParams.insert( make_pair("elbowRight", elbowR) );
+    jointCalcParams.insert( make_pair("elbowLeft", elbowL) );
+    jointCalcParams.insert( make_pair("zShoulderR", zShoulderR) );
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    
+    jointAngles.clear();
     kinect.update();
 
     // mesh = kinect.getDepthSource()->getMesh(
     //  false, 
 //      ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
+
+    // clearing saved angles
+
 }
 
 //--------------------------------------------------------------
@@ -45,51 +60,7 @@ void ofApp::draw(){
     ofDrawBitmapString(ofToString(ofGetFrameRate()), ofGetWidth() - 100, 50);
 }
 
-bool ofApp::checkTracking( std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
-                           std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
-                           std::map<int, ofxKFW2::Data::Joint>::iterator &j3, 
-                           std::map<int, ofxKFW2::Data::Joint> &jointsData) {
-
-    if (j1 != jointsData.end() && j2 != jointsData.end() && j3 != jointsData.end()) {
-        if (j1->second.getTrackingState() == 2 && j2->second.getTrackingState() == 2 && j3->second.getTrackingState() == 2) {
-            return true;
-        }
-    }
-    return false;
-}
-
-float ofApp::calcAngle ( std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
-                         std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
-                         std::map<int, ofxKFW2::Data::Joint>::iterator &j3 ) {
-
-            // it works, but doesn't seem a clean solution to me...
-
-    ofVec3f posJ1 = j1->second.getPosition();
-    ofVec3f posJ2 = j2->second.getPosition();
-    ofVec3f posJ3 = j3->second.getPosition();
-
-    // calculate distances between points
-    float shoulderY = posJ1.y;
-    float elbowY = posJ2.y;
-    float wristY = posJ3.y;
-
-    float distSW = sqrtf(pow(posJ1.x - posJ3.x, 2.) + pow(posJ1.y - posJ3.y, 2.));
-    float distSE = sqrtf(pow(posJ1.x - posJ2.x, 2.) + pow(posJ1.y - posJ2.y, 2.));
-    float distEW = sqrtf(pow(posJ2.x - posJ3.x, 2.) + pow(posJ2.y - posJ3.y, 2.));
-                        
-
-    // cosine rule c^2 = a^2 + b^2 - 2ab * cos(C)
-    // cos(C) = (a^2 + b^2 - c^2) / 2ab
-    float angle = acosf((pow(distSE, 2.) + pow(distEW, 2.) - pow(distSW, 2.)) / (2. * distSE * distEW));
-    // angle is in radians
-    // rotation is over z-axis?
-    cout << ofRadToDeg(angle) << endl;
-
-    return angle;
-
-}
-
-
+// --------------------------------------------------------------
 void ofApp::drawJoints3D() {
     // DRAW THE JOINTS IN A SALMON COLOR
     ofVec3f pos;
@@ -102,12 +73,13 @@ void ofApp::drawJoints3D() {
 
             auto b = this->kinect.getBodySource()->getBodies()[i];
             
-            std::map<JointType, ofxKFW2::Data::Joint>::iterator it;
-            std::map<int, ofxKFW2::Data::Joint> jointsData;
+            map<JointType, ofxKFW2::Data::Joint>::iterator it;
+            map<int, ofxKFW2::Data::Joint> jointsData;
+
             // ITERATE THROUGH ALL JOINTS IN THE TRACKED BODY...
             for (it = b.joints.begin(); it != b.joints.end(); ++it) {
                 
-                jointsData.insert(std::pair<int, ofxKFW2::Data::Joint>(it->first, it->second));
+                jointsData.insert( pair<int, ofxKFW2::Data::Joint>(it->first, it->second));
                 
                 if (it->second.getTrackingState() == TrackingState_Tracked) {
 
@@ -125,49 +97,65 @@ void ofApp::drawJoints3D() {
 
             }
 
-            std::map<int, ofxKFW2::Data::Joint>::iterator jointElbowRight = jointsData.find(ElbowRight);
-            auto jointShoulderRight = jointsData.find(ShoulderRight);
-            auto jointWristRight = jointsData.find(WristRight);
+            for (map<string, CalcParams>::iterator paramsIterator = jointCalcParams.begin(); paramsIterator != jointCalcParams.end(); paramsIterator++) {
+                auto j1 = jointsData.find(paramsIterator->second.j[0]);
+                auto j2 = jointsData.find(paramsIterator->second.j[1]);
+                auto j3 = jointsData.find(paramsIterator->second.j[2]);
 
-            if (checkTracking(jointShoulderRight, jointElbowRight, jointWristRight, jointsData)) {
-               float elbowAngle = calcAngle(jointShoulderRight, jointElbowRight, jointWristRight);
-               cout << "angle elbow: " << elbowAngle << endl;
-            }
-            
-
-            /*
-            if (jointElbowRight != jointsData.end() && jointElbowRight != jointsData.end() && jointWristRight != jointsData.end()) {
-                if (jointElbowRight->second.getTrackingState() == 2 && jointShoulderRight->second.getTrackingState() == 2 && jointWristRight->second.getTrackingState() == 2) {
-                    // it works, but doesn't seem a clean solution to me...
-
-                    ofVec3f posShoulder = jointShoulderRight->second.getPosition();
-                    ofVec3f posElbow = jointElbowRight->second.getPosition();
-                    ofVec3f posWrist = jointWristRight->second.getPosition();
-
-                    // calculate distances between points
-                    float shoulderY = posShoulder.y;
-                    float wristY = posWrist.y;
-                    float elbowY = posElbow.y;
-
-                    float distSW = sqrtf(pow(posShoulder.x - posWrist.x, 2.) + pow(posShoulder.y - posWrist.y, 2.));
-                    float distSE = sqrtf(pow(posShoulder.x - posElbow.x, 2.) + pow(posShoulder.y - posElbow.y, 2.));
-                    float distEW = sqrtf(pow(posElbow.x - posWrist.x, 2.) + pow(posElbow.y - posWrist.y, 2.));
-                        
-
-                    // cosine rule c^2 = a^2 + b^2 - 2ab * cos(C)
-                    // cos(C) = (a^2 + b^2 - c^2) / 2ab
-                    float angle = acosf((pow(distSE, 2.) + pow(distEW, 2.) - pow(distSW, 2.)) / (2. * distSE * distEW));
-                    // angle is in radians
-                    // rotation is over z-axis?
-                    cout << ofRadToDeg(angle) << endl;
+                if ( checkTracking(j1, j2, j3, jointsData) ) {
+                    float angle = calcAngle( j1, j2, j3 );
+                    jointAngles.insert( pair<string, float>(paramsIterator->first, angle) );
+                    cout << paramsIterator->first << " " << angle << endl;
                 }
             }
-            */
         }
     }
     ofSetColor(255);
 }
 
+// -----------------------------------------------------------------------------
+bool ofApp::checkTracking( map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                           map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                           map<int, ofxKFW2::Data::Joint>::iterator &j3, 
+                           map<int, ofxKFW2::Data::Joint> &jointsData) {
+
+    if (j1 != jointsData.end() && j2 != jointsData.end() && j3 != jointsData.end()) {
+        if (j1->second.getTrackingState() == 2 && j2->second.getTrackingState() == 2 && j3->second.getTrackingState() == 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ---------------------------------------------------------------------------
+float ofApp::calcAngle ( map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                         map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                         map<int, ofxKFW2::Data::Joint>::iterator &j3 ) {
+
+            // it works, but doesn't seem a clean solution to me...
+
+    ofVec3f posJ1 = j1->second.getPosition();
+    ofVec3f posJ2 = j2->second.getPosition();
+    ofVec3f posJ3 = j3->second.getPosition();
+
+    // calculate distances between points
+    float shoulderY = posJ1.y;
+    float elbowY = posJ2.y;
+    float wristY = posJ3.y;
+
+    float distSW = sqrtf(pow(posJ1.x - posJ3.x, 2.) + pow(posJ1.y - posJ3.y, 2.));
+    float distSE = sqrtf(pow(posJ1.x - posJ2.x, 2.) + pow(posJ1.y - posJ2.y, 2.));
+    float distEW = sqrtf(pow(posJ2.x - posJ3.x, 2.) + pow(posJ2.y - posJ3.y, 2.));
+                        
+    // cosine rule c^2 = a^2 + b^2 - 2ab * cos(C)
+    // cos(C) = (a^2 + b^2 - c^2) / 2ab
+    float angle = acosf((pow(distSE, 2.) + pow(distEW, 2.) - pow(distSW, 2.)) / (2. * distSE * distEW));
+    // angle is in radians
+    // rotation is over z-axis?
+
+    return angle;
+
+}
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){

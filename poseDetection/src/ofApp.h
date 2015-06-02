@@ -23,6 +23,15 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
+    float calcAngle( std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                     std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                     std::map<int, ofxKFW2::Data::Joint>::iterator &j3 );
+
+    bool checkTracking( std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                        std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                        std::map<int, ofxKFW2::Data::Joint>::iterator &j3,
+                        std::map<int, ofxKFW2::Data::Joint> &jointsData );
+
     ofxKFW2::Device kinect;
 
     ofEasyCam       camera;
@@ -60,4 +69,6 @@ public:
         HandTipRight,
         ThumbRight
     };
+
+
 };

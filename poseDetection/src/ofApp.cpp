@@ -13,28 +13,28 @@ void ofApp::setup(){
 
     ofSetWindowShape(1920, 1080);
 
-    // std::array<int, 3> elbowR; { { 1, 2, 3} };
     CalcParams elbowR       = { ShoulderRight, ElbowRight, WristRight };
     CalcParams elbowL       = { ShoulderLeft, ElbowLeft, WristLeft };
     CalcParams zShoulderR   = { HipRight, ShoulderRight, ElbowRight };
+    CalcParams zShoulderL   = { HipLeft, ShoulderLeft, ElbowLeft };
 
     jointCalcParams.insert( make_pair("elbowRight", elbowR) );
     jointCalcParams.insert( make_pair("elbowLeft", elbowL) );
     jointCalcParams.insert( make_pair("zShoulderR", zShoulderR) );
+    jointCalcParams.insert( make_pair("zShoulderL", zShoulderL) );
 
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     
+    // clearing saved angles
     jointAngles.clear();
     kinect.update();
 
     // mesh = kinect.getDepthSource()->getMesh(
     //  false, 
-//      ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
-
-    // clearing saved angles
+    //  ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
 
 }
 
@@ -132,26 +132,19 @@ float ofApp::calcAngle ( map<int, ofxKFW2::Data::Joint>::iterator &j1,
                          map<int, ofxKFW2::Data::Joint>::iterator &j2, 
                          map<int, ofxKFW2::Data::Joint>::iterator &j3 ) {
 
-            // it works, but doesn't seem a clean solution to me...
-
     ofVec3f posJ1 = j1->second.getPosition();
     ofVec3f posJ2 = j2->second.getPosition();
     ofVec3f posJ3 = j3->second.getPosition();
 
     // calculate distances between points
-    float shoulderY = posJ1.y;
-    float elbowY = posJ2.y;
-    float wristY = posJ3.y;
-
     float distSW = sqrtf(pow(posJ1.x - posJ3.x, 2.) + pow(posJ1.y - posJ3.y, 2.));
     float distSE = sqrtf(pow(posJ1.x - posJ2.x, 2.) + pow(posJ1.y - posJ2.y, 2.));
     float distEW = sqrtf(pow(posJ2.x - posJ3.x, 2.) + pow(posJ2.y - posJ3.y, 2.));
                         
-    // cosine rule c^2 = a^2 + b^2 - 2ab * cos(C)
+    // cosine rule: c^2 = a^2 + b^2 - 2ab * cos(C)
     // cos(C) = (a^2 + b^2 - c^2) / 2ab
     float angle = acosf((pow(distSE, 2.) + pow(distEW, 2.) - pow(distSW, 2.)) / (2. * distSE * distEW));
     // angle is in radians
-    // rotation is over z-axis?
 
     return angle;
 

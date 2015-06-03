@@ -44,8 +44,25 @@ public:
         int j[3];
     };
 
-    map<string, float> jointAngles;
+    vector< map<int, ofxKFW2::Data::Joint> > bodies;
+
     map<string, CalcParams> jointCalcParams;
+
+    struct Pose {
+        float ElbowRight;
+        float ElbowLeft;
+        float zShoulderRight;
+        float zShoulderLeft;
+
+        Pose(float ER, float EL, float zSR, float zSL) {
+            ElbowRight = ER;
+            ElbowLeft = EL;
+            zShoulderRight = zSR;
+            zShoulderLeft = zSL;
+        }
+    };
+    map<int, Pose> poses;
+    vector<int> activePoses;
 
     static const string joints[];
     enum Joints

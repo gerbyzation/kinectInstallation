@@ -26,8 +26,8 @@ void ofApp::setup(){
     jointCalcParams.insert( make_pair("zShoulderRight", zShoulderR) );
     jointCalcParams.insert( make_pair("zShoulderLeft", zShoulderL) );
 
-    Pose pose1(180.0, 180.0, 90.0, 90.0);
-    Pose pose2(180.0, 180.0, 0.0, 90.0);
+    Pose pose1(180.0, 180.0, 100.0, 100.0);
+    Pose pose2(180.0, 180.0, 17.0, 100.0);
 
     // leave 0 empty
     poses.insert( make_pair(1, pose1) );
@@ -106,21 +106,24 @@ void ofApp::update(){
             float zsrDif = abs( zsrTar - zsrA );
 
             // tolerance value
-            float tol = 20.0;
+            float tol = 15.0;
+
+            cout << elA << endl;
 
             if ( elDif < tol && elA != -1.0 && erDif < tol && erA != -1.0 &&
                  zslDif < tol && zslA != -1.0 && zsrDif < 10.0 && zsrA != -1.0 ) {
-                cout << "pose " << i->first << endl;
+                sendOscMessage(97 + i->first);
+                // cout << "pose " << i->first << endl;
                 activePoses.push_back(i->first);
             } else {
                 activePoses.push_back(-1.0);
-                cout << "pose -1" << endl;
+                // cout << "pose -1" << endl;
             }
         }
     }
 
     // mesh = kinect.getDepthSource()->getMesh(
-    //  false, 
+    //  false, hh
     //  ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
 
 }
@@ -237,7 +240,6 @@ float ofApp::calcAngle ( map<int, ofxKFW2::Data::Joint>::iterator &j1,
 void ofApp::sendOscMessage(char c) {
     ofxOscMessage m;
     m.setAddress(ofToString(c));
-    m.addIntArg(c);
     sender.sendMessage(m);
 }
 

@@ -15,7 +15,7 @@ void draw()
 {
 }
 
-void keyPressed()
+void keyPressed(char key)
 {
   OscMessage message = new OscMessage(""+key);
   osc.send(message,remoteServer);

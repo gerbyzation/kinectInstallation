@@ -26,12 +26,28 @@ void ofApp::setup(){
     jointCalcParams.insert( make_pair("zShoulderRight", zShoulderR) );
     jointCalcParams.insert( make_pair("zShoulderLeft", zShoulderL) );
 
-    Pose pose1(180.0, 180.0, 100.0, 100.0);
-    Pose pose2(180.0, 180.0, 17.0, 100.0);
+    // pose(ER, ER, zSR, zSL)
+    Pose pose1(180., 180., 100., 100.); 
+    Pose pose2(180., 180.0, 15., 100.); // f
+    Pose pose3(180., 165., 15., 180.);//d
+    Pose pose4(180., 180., 15., 140.); //e
+    Pose pose5(180., 180., 100., 15.); // b
+    Pose pose6(180., 180., 140., 15.); // c
+    Pose pose7(165., 180., 180., 100.); // j
+    Pose pose8(180., 180., 60., 140.); // l
+    Pose pose9(180., 165., 100., 180.); // p
+    Pose pose10(180., 180., 140., 140.);
 
-    // leave 0 empty
     poses.insert( make_pair(1, pose1) );
     poses.insert( make_pair(2, pose2) );
+    poses.insert( make_pair(3, pose3) );
+    poses.insert( make_pair(4, pose4) );
+    poses.insert( make_pair(5, pose5) );
+    poses.insert( make_pair(6, pose6) );
+    poses.insert( make_pair(7, pose7) );
+    poses.insert( make_pair(8, pose8) );
+    poses.insert( make_pair(9, pose9) );
+    poses.insert( make_pair(10, pose10) );
 
 }
 

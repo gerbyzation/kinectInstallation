@@ -20,8 +20,8 @@ void ofApp::setup(){
 
     jointCalcParams.insert( make_pair("elbowRight", elbowR) );
     jointCalcParams.insert( make_pair("elbowLeft", elbowL) );
-    jointCalcParams.insert( make_pair("zShoulderR", zShoulderR) );
-    jointCalcParams.insert( make_pair("zShoulderL", zShoulderL) );
+    jointCalcParams.insert( make_pair("zShoulderRight", zShoulderR) );
+    jointCalcParams.insert( make_pair("zShoulderLeft", zShoulderL) );
 
     Pose pose1(180.0, 180.0, 90.0, 90.0);
     Pose pose2(180.0, 180.0, 0.0, 90.0);
@@ -64,8 +64,6 @@ void ofApp::update(){
         }
     }
 
-
-
     // 2. calculate angles
     for (vector< map<int, ofxKFW2::Data::Joint> >::iterator i = bodies.begin(); i != bodies.end(); i++) {
 
@@ -82,6 +80,8 @@ void ofApp::update(){
                 jointAngles.insert( pair<string, float>(paramsIterator->first, angle) );
             }
         }
+
+        jointAngleArray.push_back(jointAngles);     
 
         // 3. check for poses
         // check for angles matching poses
@@ -103,12 +103,16 @@ void ofApp::update(){
             float zslDif = abs( zslTar - zslA );
             float zsrDif = abs( zsrTar - zsrA );
 
-            if ( elDif < 10.0 && elA != -1.0 && erDif < 10.0 && erA != -1.0 &&
-                 zslDif < 10.0 && zslA != -1.0 && zsrDif < 10.0 && zsrA != -1.0 ) {
+            // tolerance value
+            float tol = 20.0;
+
+            if ( elDif < tol && elA != -1.0 && erDif < tol && erA != -1.0 &&
+                 zslDif < tol && zslA != -1.0 && zsrDif < 10.0 && zsrA != -1.0 ) {
                 cout << "pose " << i->first << endl;
                 activePoses.push_back(i->first);
             } else {
                 activePoses.push_back(-1.0);
+                cout << "pose -1" << endl;
             }
         }
     }
@@ -138,17 +142,30 @@ void ofApp::draw(){
 
     camera.end();
 
-    cout << "vector size " << activePoses.size() << endl;
-
-    if (activePoses.size() > 0) {
-        ofDrawBitmapString(ofToString(activePoses.size()), ofGetWidth()/2, ofGetHeight()/2);
-    }
-
     ofDrawBitmapString(ofToString(ofGetFrameRate()), ofGetWidth() - 100, 50);
+
+    for (int i = 0; i < jointAngleArray.size(); i++) {
+        // debug stuff
+        if (jointAngleArray[i].size() == 4) {
+            map<string, float>::iterator er = jointAngleArray[i].find("elbowRight");
+
+            ofDrawBitmapString(er->first + " " + ofToString(er->second), ofGetWidth() - 200, ofGetHeight() - 200);
+            /*
+            map<string, float>::iterator el = jointAngleArray[i].find("elbowLeft");
+            ofDrawBitmapString(el->first + " " + ofToString(el->second), ofGetWidth()/4, 100 + 100*i + 20);
+
+            map<string, float>::iterator zsr = jointAngleArray[i].find("zShoulderRight");
+            ofDrawBitmapString(zsr->first + " " + ofToString(zsr->second), ofGetWidth()/4, 100 + 100*i + 30);
+
+            map<string, float>::iterator zsl = jointAngleArray[i].find("zShoulderLeft");
+            ofDrawBitmapString(zsl->first + " " + ofToString(zsl->second), ofGetWidth()/4, 100 + 100*i + 40);
+            */
+        }   
+    }  
 }
 
 // --------------------------------------------------------------
-void ofApp::drawJoints3D() {
+void ofApp::drawJoints3D() { 
     // DRAW THE JOINTS IN A SALMON COLOR
     ofVec3f pos;
 

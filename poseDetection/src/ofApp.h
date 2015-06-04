@@ -64,6 +64,8 @@ public:
     map<int, Pose> poses;
     vector<int> activePoses;
 
+    vector< map<string, float> > jointAngleArray;
+
     static const string joints[];
     enum Joints
     {

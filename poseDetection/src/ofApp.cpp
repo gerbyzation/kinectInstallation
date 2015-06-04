@@ -4,6 +4,9 @@ const string ofApp::joints[] = { "SpineBase", "SpineMid", "Neck", "Head", "Shoul
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+
+    sender.setup("127.0.0.1", 8888);
+
     kinect.open();
     kinect.initBodySource();
     kinect.initColorSource();
@@ -41,7 +44,6 @@ void ofApp::update(){
     kinect.update();
 
     // 1. create tracked bodies/joints array
-    
     // THERE IS A MAXIMUM OF 6 BODIES TRACKED BY KINECT
     for (int i = 0; i<6; i++){
 
@@ -232,9 +234,16 @@ float ofApp::calcAngle ( map<int, ofxKFW2::Data::Joint>::iterator &j1,
 
 }
 
+void ofApp::sendOscMessage(char c) {
+    ofxOscMessage m;
+    m.setAddress(ofToString(c));
+    m.addIntArg(c);
+    sender.sendMessage(m);
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    sendOscMessage(key);
 }
 
 //--------------------------------------------------------------

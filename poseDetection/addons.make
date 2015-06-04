@@ -1,1 +1,3 @@
+ofxGui
+ofxOsc
 ofxKinectForWindows2

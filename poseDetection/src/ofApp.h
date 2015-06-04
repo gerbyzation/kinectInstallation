@@ -2,13 +2,11 @@
 
 #include "ofMain.h"
 #include "ofxKinectForWindows2.h"
+#include "ofxOSC.h"
 #include <map>
 #include <array>
 
 class ofApp : public ofBaseApp{
-
-
-
 public:
     void setup();
     void update();
@@ -24,6 +22,8 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
+    void sendOscMessage(char c);
+
     float calcAngle( std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
                      std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
                      std::map<int, ofxKFW2::Data::Joint>::iterator &j3 );
@@ -34,6 +34,7 @@ public:
                         std::map<int, ofxKFW2::Data::Joint> &jointsData );
 
     ofxKFW2::Device kinect;
+    ofxOscSender sender;
 
     ofEasyCam       camera;
     ofMesh          mesh;

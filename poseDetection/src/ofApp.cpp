@@ -13,6 +13,8 @@ void ofApp::setup(){
     kinect.initDepthSource();
     kinect.initBodyIndexSource();
 
+    kinect.getSensor()->get_CoordinateMapper(&m_pCoordinateMapper);
+
     camera.setDistance(10);
 
     ofSetWindowShape(1920, 1080);
@@ -28,27 +30,16 @@ void ofApp::setup(){
     jointCalcParams.insert( make_pair("zShoulderLeft", zShoulderL) );
 
     // pose(ER, ER, zSR, zSL)
-    Pose pose1(180., 180., 100., 100.); 
-    Pose pose2(180., 180.0, 15., 100.); // f
-    Pose pose3(180., 165., 15., 180.);//d
-    Pose pose4(180., 180., 15., 140.); //e
-    Pose pose5(180., 180., 100., 15.); // b
-    Pose pose6(180., 180., 140., 15.); // c
-    Pose pose7(165., 180., 180., 100.); // j
-    Pose pose8(180., 180., 60., 140.); // l
-    Pose pose9(180., 165., 100., 180.); // p
-    Pose pose10(180., 180., 140., 140.);
-
-    poses.insert( make_pair(1, pose1) );
-    poses.insert( make_pair(2, pose2) );
-    poses.insert( make_pair(3, pose3) );
-    poses.insert( make_pair(4, pose4) );
-    poses.insert( make_pair(5, pose5) );
-    poses.insert( make_pair(6, pose6) );
-    poses.insert( make_pair(7, pose7) );
-    poses.insert( make_pair(8, pose8) );
-    poses.insert( make_pair(9, pose9) );
-    poses.insert( make_pair(10, pose10) );
+    poses.insert( make_pair(1, Pose(180., 180., 100., 100.)) );
+    poses.insert( make_pair(2, Pose(180., 180., 15., 100.)) ); //f
+    poses.insert( make_pair(3, Pose(180., 165., 15., 180.)) ); // d
+    poses.insert( make_pair(4, Pose(180., 180., 15., 140.)) ); // e
+    poses.insert( make_pair(5, Pose(180., 180., 100., 15.)) ); // b
+    poses.insert( make_pair(6, Pose(180., 180., 140., 15.)) ); // c
+    poses.insert( make_pair(7, Pose(165., 180., 180., 100.)) ); // j
+    poses.insert( make_pair(8, Pose(180., 180., 60., 140.)) ); // l
+    poses.insert( make_pair(9, Pose(180., 165., 100., 180.)) );// p
+    poses.insert( make_pair(10, Pose(180., 180., 140., 140.)) );
 
 }
 
@@ -59,6 +50,14 @@ void ofApp::update(){
     bodies.clear();
 
     kinect.update();
+
+    unsigned short * depthPixels = this->kinect.getDepthSource()->getPixels();
+
+    HRESULT hr = m_pCoordinateMapper->MapColorFrameToDepthSpace(
+        512 * 424,
+        (const UINT16*)depthPixels,
+        1920 * 1080,
+        m_pDepthCoordinates);
 
     // 1. create tracked bodies/joints array
     // THERE IS A MAXIMUM OF 6 BODIES TRACKED BY KINECT
@@ -140,7 +139,7 @@ void ofApp::update(){
     }
 
     // mesh = kinect.getDepthSource()->getMesh(
-    //  false, hh
+    //  false,
     //  ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
 
 }
@@ -151,7 +150,9 @@ void ofApp::draw(){
 
     ofSetColor(255);
     kinect.getBodyIndexSource()->draw(0, 0, ofGetWidth(), ofGetHeight());
-    kinect.getColorSource()->draw(0, 0, 320, 180);
+    kinect.getColorSource()->draw(0, 0, 1920, 1080);
+
+    drawJoints2D();
 
     /*
     camera.begin();
@@ -167,8 +168,28 @@ void ofApp::draw(){
 
     // kinect.getDepthSource()->draw(0, 0, ofGetWidth(), ofGetHeight());
 
-    this->kinect.getBodySource()->drawProjected(0, 0, ofGetWidth(), ofGetHeight());
+    // this->kinect.getBodySource()->drawProjected(0, 0, ofGetWidth(), ofGetHeight());
     
+}
+
+// --------------------------------------------------------------
+
+void ofApp::drawJoints2D() {
+    ofPushStyle();
+    ofSetColor(255, 0, 255, 140);
+
+    ofVec2f pos;
+    for(vector< map<int, ofxKFW2::Data::Joint> >::iterator i = bodies.begin(); i != bodies.end(); i++) {
+        map<int, ofxKFW2::Data::Joint> b = *i;
+
+        for (map<int, ofxKFW2::Data::Joint>::iterator it = b.begin(); it != b.end(); it++) {
+            if (it->second.getTrackingState() == TrackingState_Tracked) {
+                pos = it->second.getProjected(m_pCoordinateMapper);
+                ofCircle(pos.x, pos.y, 10);
+            }
+        }
+    }
+    ofPopStyle();
 }
 
 // --------------------------------------------------------------
@@ -194,9 +215,7 @@ void ofApp::drawJoints3D() {
 
                 ofSetColor(255);
                 ofDrawBitmapString(joints[it->first], pos.x, pos.y, pos.z);
-
             }
-
         }
     }
     ofSetColor(255);
@@ -236,7 +255,6 @@ float ofApp::calcAngle ( const map<int, ofxKFW2::Data::Joint>::iterator &j1,
     // angle is in radians
 
     return angle;
-
 }
 
 void ofApp::sendOscMessage(char c) {

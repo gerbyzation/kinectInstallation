@@ -36,6 +36,11 @@ public:
     ofxKFW2::Device kinect;
     ofxOscSender sender;
 
+    ICoordinateMapper* m_pCoordinateMapper;
+    DepthSpacePoint    m_pDepthCoordinates[1920*1080];
+
+    void drawJoints2D();
+
     ofEasyCam       camera;
     ofMesh          mesh;
 
@@ -96,6 +101,4 @@ public:
         HandTipRight,
         ThumbRight
     };
-
-
 };

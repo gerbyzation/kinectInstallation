@@ -20,5 +20,12 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-        ofxKFW2::Device kinect;
+		ofxKFW2::Device		kinect;
+
+		// YOU NEED A COORDINATE MAPPER AND AN ARRAY
+		// TO STORE THE DEPTH TO COLOR SPACE VALUES
+		ICoordinateMapper*	m_pCoordinateMapper;
+		DepthSpacePoint		m_pDepthCoordinates[1920*1080];
+
+		void mapJoints2D();
 };

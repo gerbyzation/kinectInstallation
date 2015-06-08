@@ -11,6 +11,7 @@ void ofApp::setup(){
     kinect.initBodySource();
     kinect.initColorSource();
     kinect.initDepthSource();
+    kinect.initBodyIndexSource();
 
     camera.setDistance(10);
 
@@ -149,40 +150,25 @@ void ofApp::draw(){
     ofBackground(75, 95, 115);
 
     ofSetColor(255);
+    kinect.getBodyIndexSource()->draw(0, 0, ofGetWidth(), ofGetHeight());
     kinect.getColorSource()->draw(0, 0, 320, 180);
 
+    /*
     camera.begin();
 
     ofPushStyle();
         ofScale(10, 10, -10);
 
-        // mesh.draw();
-
         drawJoints3D();
     ofPopStyle();
 
     camera.end();
+    */
 
-    ofDrawBitmapString(ofToString(ofGetFrameRate()), ofGetWidth() - 100, 50);
+    // kinect.getDepthSource()->draw(0, 0, ofGetWidth(), ofGetHeight());
 
-    for (int i = 0; i < jointAngleArray.size(); i++) {
-        // debug stuff
-        if (jointAngleArray[i].size() == 4) {
-            map<string, float>::iterator er = jointAngleArray[i].find("elbowRight");
-
-            ofDrawBitmapString(er->first + " " + ofToString(er->second), ofGetWidth() - 200, ofGetHeight() - 200);
-            /*
-            map<string, float>::iterator el = jointAngleArray[i].find("elbowLeft");
-            ofDrawBitmapString(el->first + " " + ofToString(el->second), ofGetWidth()/4, 100 + 100*i + 20);
-
-            map<string, float>::iterator zsr = jointAngleArray[i].find("zShoulderRight");
-            ofDrawBitmapString(zsr->first + " " + ofToString(zsr->second), ofGetWidth()/4, 100 + 100*i + 30);
-
-            map<string, float>::iterator zsl = jointAngleArray[i].find("zShoulderLeft");
-            ofDrawBitmapString(zsl->first + " " + ofToString(zsl->second), ofGetWidth()/4, 100 + 100*i + 40);
-            */
-        }   
-    }  
+    this->kinect.getBodySource()->drawProjected(0, 0, ofGetWidth(), ofGetHeight());
+    
 }
 
 // --------------------------------------------------------------

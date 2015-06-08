@@ -24,14 +24,14 @@ public:
 
     void sendOscMessage(char c);
 
-    float calcAngle( std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
-                     std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
-                     std::map<int, ofxKFW2::Data::Joint>::iterator &j3 );
+    float calcAngle( const std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                     const std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                     const std::map<int, ofxKFW2::Data::Joint>::iterator &j3 );
 
-    bool checkTracking( std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
-                        std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
-                        std::map<int, ofxKFW2::Data::Joint>::iterator &j3,
-                        std::map<int, ofxKFW2::Data::Joint> &jointsData );
+    bool checkTracking( const std::map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                        const std::map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                        const std::map<int, ofxKFW2::Data::Joint>::iterator &j3,
+                        const std::map<int, ofxKFW2::Data::Joint> &jointsData );
 
     ofxKFW2::Device kinect;
     ofxOscSender sender;

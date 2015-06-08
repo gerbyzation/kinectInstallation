@@ -217,10 +217,10 @@ void ofApp::drawJoints3D() {
 }
 
 // -----------------------------------------------------------------------------
-bool ofApp::checkTracking( map<int, ofxKFW2::Data::Joint>::iterator &j1, 
-                           map<int, ofxKFW2::Data::Joint>::iterator &j2, 
-                           map<int, ofxKFW2::Data::Joint>::iterator &j3, 
-                           map<int, ofxKFW2::Data::Joint> &jointsData) {
+bool ofApp::checkTracking( const map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                           const map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                           const map<int, ofxKFW2::Data::Joint>::iterator &j3, 
+                           const map<int, ofxKFW2::Data::Joint> &jointsData) {
 
     if (j1 != jointsData.end() && j2 != jointsData.end() && j3 != jointsData.end()) {
         if (j1->second.getTrackingState() == 2 && j2->second.getTrackingState() == 2 && j3->second.getTrackingState() == 2) {
@@ -231,9 +231,9 @@ bool ofApp::checkTracking( map<int, ofxKFW2::Data::Joint>::iterator &j1,
 }
 
 // ---------------------------------------------------------------------------
-float ofApp::calcAngle ( map<int, ofxKFW2::Data::Joint>::iterator &j1, 
-                         map<int, ofxKFW2::Data::Joint>::iterator &j2, 
-                         map<int, ofxKFW2::Data::Joint>::iterator &j3 ) {
+float ofApp::calcAngle ( const map<int, ofxKFW2::Data::Joint>::iterator &j1, 
+                         const map<int, ofxKFW2::Data::Joint>::iterator &j2, 
+                         const map<int, ofxKFW2::Data::Joint>::iterator &j3 ) {
 
     ofVec3f posJ1 = j1->second.getPosition();
     ofVec3f posJ2 = j2->second.getPosition();

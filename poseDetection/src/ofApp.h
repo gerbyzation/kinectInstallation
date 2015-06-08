@@ -36,6 +36,8 @@ public:
     ofxKFW2::Device kinect;
     ofxOscSender sender;
 
+    float scanLineX;
+
     ICoordinateMapper* m_pCoordinateMapper;
     DepthSpacePoint    m_pDepthCoordinates[1920*1080];
 
@@ -51,6 +53,7 @@ public:
     };
 
     vector< map<int, ofxKFW2::Data::Joint> > bodies;
+    vector<bool> bodiesTick;
 
     map<string, CalcParams> jointCalcParams;
 

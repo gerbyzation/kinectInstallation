@@ -124,11 +124,9 @@ void ofApp::update(){
             // tolerance value
             float tol = 15.0;
 
-            cout << elA << endl;
-
             if ( elDif < tol && elA != -1.0 && erDif < tol && erA != -1.0 &&
                  zslDif < tol && zslA != -1.0 && zsrDif < 10.0 && zsrA != -1.0 ) {
-                sendOscMessage(97 + i->first);
+                // sendOscMessage(97 + i->first);
                 // cout << "pose " << i->first << endl;
                 activePoses.push_back(i->first);
             } else {
@@ -138,6 +136,28 @@ void ofApp::update(){
         }
     }
 
+
+    scanLineX = ofGetFrameNum() % ofGetWidth();
+    if (scanLineX == 0) {
+        for (bool tick : bodiesTick) {
+            tick = false;
+        }
+    }
+
+    for (int i = 0; i < bodies.size(); i++) {
+        if (bodies[i].find(JointType_SpineBase) != bodies[i].end() ) {
+            ofVec2f pos = bodies[i].find(JointType_SpineBase)->second.getProjected(m_pCoordinateMapper);
+            if (pos.x > scanLineX && pos.x < scanLineX + 1 ) {
+                cout << "hitting body " << pos.x << endl;
+                if ( activePoses[i] != -1 ) {
+                    cout << "active pose " << activePoses[i] << endl;
+                    sendOscMessage(97 + activePoses[i]);
+                } else {
+                    // play 'fallback sound'
+                }
+            }
+        }
+    }
     // mesh = kinect.getDepthSource()->getMesh(
     //  false,
     //  ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
@@ -153,6 +173,10 @@ void ofApp::draw(){
     kinect.getColorSource()->draw(0, 0, 1920, 1080);
 
     drawJoints2D();
+
+    ofSetColor(ofColor::red);
+    ofSetLineWidth(10);
+    ofLine(scanLineX, 0, scanLineX, ofGetHeight() );
 
     /*
     camera.begin();

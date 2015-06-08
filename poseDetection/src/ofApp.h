@@ -53,7 +53,6 @@ public:
     };
 
     vector< map<int, ofxKFW2::Data::Joint> > bodies;
-    vector<bool> bodiesTick;
 
     map<string, CalcParams> jointCalcParams;
 

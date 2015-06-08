@@ -138,11 +138,6 @@ void ofApp::update(){
 
 
     scanLineX = ofGetFrameNum() % ofGetWidth();
-    if (scanLineX == 0) {
-        for (bool tick : bodiesTick) {
-            tick = false;
-        }
-    }
 
     for (int i = 0; i < bodies.size(); i++) {
         if (bodies[i].find(JointType_SpineBase) != bodies[i].end() ) {

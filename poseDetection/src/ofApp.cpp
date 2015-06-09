@@ -30,8 +30,8 @@ void ofApp::setup(){
     jointCalcParams.insert( make_pair("zShoulderLeft", zShoulderL) );
 
     // pose(ER, ER, zSR, zSL)
-    poses.insert( make_pair(1, Pose(180., 180., 100., 100.)) );
-    poses.insert( make_pair(2, Pose(180., 180., 15., 100.)) ); //f
+    poses.insert( make_pair(2, Pose(180., 180., 100., 100.)) );
+    poses.insert( make_pair(1, Pose(180., 180., 15., 100.)) ); //f
     poses.insert( make_pair(3, Pose(180., 165., 15., 180.)) ); // d
     poses.insert( make_pair(4, Pose(180., 180., 15., 140.)) ); // e
     poses.insert( make_pair(5, Pose(180., 180., 100., 15.)) ); // b
@@ -85,6 +85,8 @@ void ofApp::update(){
     // 2. calculate angles
     for (vector< map<int, ofxKFW2::Data::Joint> >::iterator i = bodies.begin(); i != bodies.end(); i++) {
 
+        int index = i - bodies.begin();
+
         map<string, float> jointAngles;
         for (map<string, CalcParams>::iterator paramsIterator = jointCalcParams.begin(); paramsIterator != jointCalcParams.end(); paramsIterator++) {
 
@@ -103,8 +105,9 @@ void ofApp::update(){
 
         // 3. check for poses
         // check for angles matching poses
-        for (map<int, Pose>::iterator i = poses.begin(); i != poses.end(); i++) {
-            Pose pose = i->second;
+        int activePose = -1;
+        for (map<int, Pose>::iterator j = poses.begin(); j != poses.end(); j++) {
+            Pose pose = j->second;
             float elTar = pose.ElbowLeft;
             float erTar = pose.ElbowRight;
             float zslTar = pose.zShoulderLeft;
@@ -127,25 +130,27 @@ void ofApp::update(){
             if ( elDif < tol && elA != -1.0 && erDif < tol && erA != -1.0 &&
                  zslDif < tol && zslA != -1.0 && zsrDif < 10.0 && zsrA != -1.0 ) {
                 // sendOscMessage(97 + i->first);
-                // cout << "pose " << i->first << endl;
-                activePoses.push_back(i->first);
+                // cout << "pose " << j->first << endl;
+                activePose = j->first;
             } else {
-                activePoses.push_back(-1.0);
+                // activePoses.push_back(-1.0);
                 // cout << "pose -1" << endl;
             }
         }
+        activePoses.push_back(activePose);
     }
-
 
     scanLineX = ofGetFrameNum() % ofGetWidth();
 
     for (int i = 0; i < bodies.size(); i++) {
         if (bodies[i].find(JointType_SpineBase) != bodies[i].end() ) {
             ofVec2f pos = bodies[i].find(JointType_SpineBase)->second.getProjected(m_pCoordinateMapper);
+
             if (pos.x > scanLineX && pos.x < scanLineX + 1 ) {
                 cout << "hitting body " << pos.x << endl;
-                if ( activePoses[i] != -1 ) {
-                    cout << "active pose " << activePoses[i] << endl;
+                // cout << "active pose " << activePoses[i] << endl;
+                if ( activePoses[i] > -1 ) {
+                    cout << "triggering: " << 97 + activePoses[i] << endl;
                     sendOscMessage(97 + activePoses[i]);
                 } else {
                     // play 'fallback sound'
@@ -195,11 +200,17 @@ void ofApp::draw(){
 
 void ofApp::drawJoints2D() {
     ofPushStyle();
-    ofSetColor(255, 0, 255, 140);
 
     ofVec2f pos;
     for(vector< map<int, ofxKFW2::Data::Joint> >::iterator i = bodies.begin(); i != bodies.end(); i++) {
         map<int, ofxKFW2::Data::Joint> b = *i;
+        int index = i - bodies.begin();
+
+        if (activePoses[index] > -1) {
+            ofSetColor(ofColor::green);
+        } else {
+            ofSetColor(255, 0, 255, 140);
+        }
 
         for (map<int, ofxKFW2::Data::Joint>::iterator it = b.begin(); it != b.end(); it++) {
             if (it->second.getTrackingState() == TrackingState_Tracked) {

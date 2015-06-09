@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxKinectForWindows2.h"
 #include "ofxOSC.h"
+#include "ofxGui.h"
 #include <map>
 #include <array>
 
@@ -35,6 +36,11 @@ public:
 
     ofxKFW2::Device kinect;
     ofxOscSender sender;
+
+    bool showGUI;
+    ofxPanel gui;
+    ofParameter<float> maxDistance;
+    ofParameter<float> tol;
 
     float scanLineX;
 

@@ -41,6 +41,11 @@ void ofApp::setup(){
     poses.insert( make_pair(9, Pose(180., 165., 100., 180.)) );// p
     poses.insert( make_pair(10, Pose(180., 180., 140., 140.)) );
 
+    showGUI = false;
+    gui.setup("Parameters");
+    gui.add(maxDistance.set("Max Distance", 5., 0., 10.));
+    gui.add(tol.set("Pose tolerance", 15., 0., 50.));
+
 }
 
 //--------------------------------------------------------------
@@ -71,14 +76,17 @@ void ofApp::update(){
             map<JointType, ofxKFW2::Data::Joint>::iterator it;
             map<int, ofxKFW2::Data::Joint> jointsData;
 
-            // ITERATE THROUGH ALL JOINTS IN THE TRACKED BODY...
-            for (it = b.joints.begin(); it != b.joints.end(); ++it) {
+            if (b.joints.find(JointType_SpineBase) != b.joints.end()) {
+                if (b.joints.find(JointType_SpineBase)->second.getPosition().z <= maxDistance) {
+                                // ITERATE THROUGH ALL JOINTS IN THE TRACKED BODY...
+                    for (it = b.joints.begin(); it != b.joints.end(); ++it) {
                 
-                jointsData.insert( pair<int, ofxKFW2::Data::Joint>(it->first, it->second));
+                        jointsData.insert( pair<int, ofxKFW2::Data::Joint>(it->first, it->second));
                 
+                    }
+                    bodies.push_back(jointsData);
+                }
             }
-
-            bodies.push_back(jointsData);
         }
     }
 
@@ -125,7 +133,6 @@ void ofApp::update(){
             float zsrDif = abs( zsrTar - zsrA );
 
             // tolerance value
-            float tol = 15.0;
 
             if ( elDif < tol && elA != -1.0 && erDif < tol && erA != -1.0 &&
                  zslDif < tol && zslA != -1.0 && zsrDif < 10.0 && zsrA != -1.0 ) {
@@ -194,6 +201,10 @@ void ofApp::draw(){
 
     // this->kinect.getBodySource()->drawProjected(0, 0, ofGetWidth(), ofGetHeight());
     
+    if (showGUI) {
+        gui.draw();
+    }
+
 }
 
 // --------------------------------------------------------------
@@ -295,6 +306,9 @@ void ofApp::sendOscMessage(char c) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    if (key = 'h') {
+        showGUI = !showGUI;
+    }
     sendOscMessage(key);
 }
 

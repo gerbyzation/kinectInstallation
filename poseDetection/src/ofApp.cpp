@@ -203,6 +203,7 @@ void ofApp::draw(){
     
     if (showGUI) {
         gui.draw();
+        ofDrawBitmapString(ofToString(ofGetFrameRate()), 20, 100);
     }
 
 }

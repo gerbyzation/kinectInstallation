@@ -5,6 +5,8 @@ const string ofApp::joints[] = { "SpineBase", "SpineMid", "Neck", "Head", "Shoul
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+	ofSetFrameRate(60);
+
     sender.setup("127.0.0.1", 8888);
 
     kinect.open();
@@ -43,8 +45,13 @@ void ofApp::setup(){
 
     showGUI = false;
     gui.setup("Parameters");
+
+	// set(default, min, max)
     gui.add(maxDistance.set("Max Distance", 5., 0., 10.));
-    gui.add(tol.set("Pose tolerance", 15., 0., 50.));
+    gui.add(tol.set("Pose tolerance", 25., 0., 50.));
+	gui.add(speed.set("Scanline speed", 600., 1., 2000.));
+	scanLineX = 0;
+	lastX = 0;
 
 }
 
@@ -147,33 +154,34 @@ void ofApp::update(){
         activePoses.push_back(activePose);
     }
 
-    scanLineX = ofGetFrameNum() % ofGetWidth();
+	scanLineX = (ofGetElapsedTimeMillis() * (long long) speed/ (long long) 1000.0 ) % ofGetWidth();
 
     for (int i = 0; i < bodies.size(); i++) {
         if (bodies[i].find(JointType_SpineBase) != bodies[i].end() ) {
             ofVec2f pos = bodies[i].find(JointType_SpineBase)->second.getProjected(m_pCoordinateMapper);
 
-            if (pos.x > scanLineX && pos.x < scanLineX + 1 ) {
-                cout << "hitting body " << pos.x << endl;
-                // cout << "active pose " << activePoses[i] << endl;
-                if ( activePoses[i] > -1 ) {
-                    cout << "triggering: " << 97 + activePoses[i] << endl;
-                    sendOscMessage(97 + activePoses[i]);
-                } else {
-                    // play 'fallback sound'
-                }
-            }
+			if(lastX > scanLineX) lastX = 0;
+
+			if (pos.x > lastX && pos.x < scanLineX) {
+				if (activePoses[i] > -1) {
+					sendOscMessage(97 + activePoses[i]);
+				} else {
+					// fallback sound
+					// sendOscMessage(number);
+				}
+			}
         }
     }
     // mesh = kinect.getDepthSource()->getMesh(
     //  false,
     //  ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
 
+	lastX = scanLineX;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(75, 95, 115);
+    ofBackground(0, 0, 0);
 
     ofSetColor(255);
     // kinect.getBodyIndexSource()->draw(0, 0, ofGetWidth(), ofGetHeight());
@@ -182,8 +190,9 @@ void ofApp::draw(){
     drawJoints2D();
 
     ofSetColor(ofColor::red);
-    ofSetLineWidth(10);
+    ofSetLineWidth(2);
     ofLine(scanLineX, 0, scanLineX, ofGetHeight() );
+	ofLine(scanLineX + 10, 0, scanLineX + 10, ofGetHeight() );
 
     /*
     camera.begin();
@@ -203,7 +212,7 @@ void ofApp::draw(){
     
     if (showGUI) {
         gui.draw();
-		ofDrawBitmapString(ofToString(ofGetFrameRate()), 20, 100);
+        ofDrawBitmapString(ofToString(ofGetFrameRate()), 20, 100);
     }
 
 }
@@ -218,15 +227,16 @@ void ofApp::drawJoints2D() {
         map<int, ofxKFW2::Data::Joint> b = *i;
         int index = i - bodies.begin();
 
-        if (activePoses[index] > -1) {
-            ofSetColor(ofColor::green);
-        } else {
-            ofSetColor(255, 0, 255, 140);
-        }
+        ofSetColor(255, 255, 255);
 
         for (map<int, ofxKFW2::Data::Joint>::iterator it = b.begin(); it != b.end(); it++) {
             if (it->second.getTrackingState() == TrackingState_Tracked) {
                 pos = it->second.getProjected(m_pCoordinateMapper);
+
+                if (activePoses[index] == -1) {
+                    ofNoFill();
+                    ofSetLineWidth(2);
+                }
                 ofCircle(pos.x, pos.y, 10);
             }
         }

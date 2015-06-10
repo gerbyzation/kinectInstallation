@@ -9,9 +9,9 @@ void ofApp::setup(){
 
     kinect.open();
     kinect.initBodySource();
-    kinect.initColorSource();
+    // kinect.initColorSource();
     kinect.initDepthSource();
-    kinect.initBodyIndexSource();
+    // kinect.initBodyIndexSource();
 
     kinect.getSensor()->get_CoordinateMapper(&m_pCoordinateMapper);
 
@@ -173,11 +173,11 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(75, 95, 115);
+    ofBackground(0, 0, 0);
 
     ofSetColor(255);
-    kinect.getBodyIndexSource()->draw(0, 0, ofGetWidth(), ofGetHeight());
-    kinect.getColorSource()->draw(0, 0, 1920, 1080);
+    // kinect.getBodyIndexSource()->draw(0, 0, ofGetWidth(), ofGetHeight());
+    // kinect.getColorSource()->draw(0, 0, 1920, 1080);
 
     drawJoints2D();
 
@@ -218,15 +218,16 @@ void ofApp::drawJoints2D() {
         map<int, ofxKFW2::Data::Joint> b = *i;
         int index = i - bodies.begin();
 
-        if (activePoses[index] > -1) {
-            ofSetColor(ofColor::green);
-        } else {
-            ofSetColor(255, 0, 255, 140);
-        }
+        ofSetColor(255, 255, 255);
 
         for (map<int, ofxKFW2::Data::Joint>::iterator it = b.begin(); it != b.end(); it++) {
             if (it->second.getTrackingState() == TrackingState_Tracked) {
                 pos = it->second.getProjected(m_pCoordinateMapper);
+
+                if (activePoses[index] == -1) {
+                    ofNoFill();
+                    ofSetLineWidth(2);
+                }
                 ofCircle(pos.x, pos.y, 10);
             }
         }
